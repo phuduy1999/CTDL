@@ -1,0 +1,52 @@
+﻿  Source.cpp
+C:\Users\Administrator\source\repos\MayBay\MayBay\Source.cpp(1436,29): warning C4267: 'argument': conversion from 'size_t' to 'short', possible loss of data
+C:\Users\Administrator\source\repos\MayBay\MayBay\Source.cpp(1438,29): warning C4267: 'argument': conversion from 'size_t' to 'short', possible loss of data
+C:\Users\Administrator\source\repos\MayBay\MayBay\Source.cpp(1443,20): warning C4018: '<': signed/unsigned mismatch
+C:\Users\Administrator\source\repos\MayBay\MayBay\Source.cpp(1453,20): warning C4018: '<': signed/unsigned mismatch
+C:\Users\Administrator\source\repos\MayBay\MayBay\Source.cpp(1464,7): warning C4101: 'err': unreferenced local variable
+C:\Users\Administrator\source\repos\MayBay\MayBay\Source.cpp(1601,6): warning C4101: 'tmp_x': unreferenced local variable
+C:\Users\Administrator\source\repos\MayBay\MayBay\Source.cpp(1682,33): warning C4267: 'argument': conversion from 'size_t' to 'short', possible loss of data
+C:\Users\Administrator\source\repos\MayBay\MayBay\Source.cpp(1685,31): warning C4267: 'argument': conversion from 'size_t' to 'short', possible loss of data
+C:\Users\Administrator\source\repos\MayBay\MayBay\Source.cpp(1688,32): warning C4267: 'argument': conversion from 'size_t' to 'short', possible loss of data
+C:\Users\Administrator\source\repos\MayBay\MayBay\Source.cpp(1704,31): warning C4267: 'argument': conversion from 'size_t' to 'short', possible loss of data
+C:\Users\Administrator\source\repos\MayBay\MayBay\Source.cpp(1707,32): warning C4267: 'argument': conversion from 'size_t' to 'short', possible loss of data
+C:\Users\Administrator\source\repos\MayBay\MayBay\Source.cpp(1710,33): warning C4267: 'argument': conversion from 'size_t' to 'short', possible loss of data
+C:\Users\Administrator\source\repos\MayBay\MayBay\Source.cpp(1749,33): warning C4267: 'argument': conversion from 'size_t' to 'short', possible loss of data
+C:\Users\Administrator\source\repos\MayBay\MayBay\Source.cpp(1757,32): warning C4267: 'argument': conversion from 'size_t' to 'short', possible loss of data
+C:\Users\Administrator\source\repos\MayBay\MayBay\Source.cpp(1765,33): warning C4267: 'argument': conversion from 'size_t' to 'short', possible loss of data
+C:\Users\Administrator\source\repos\MayBay\MayBay\Source.cpp(1773,32): warning C4267: 'argument': conversion from 'size_t' to 'short', possible loss of data
+C:\Users\Administrator\source\repos\MayBay\MayBay\Source.cpp(1933,30): warning C4267: 'argument': conversion from 'size_t' to 'short', possible loss of data
+C:\Users\Administrator\source\repos\MayBay\MayBay\Source.cpp(1948,33): warning C4267: 'argument': conversion from 'size_t' to 'short', possible loss of data
+C:\Users\Administrator\source\repos\MayBay\MayBay\Source.cpp(1951,31): warning C4267: 'argument': conversion from 'size_t' to 'short', possible loss of data
+C:\Users\Administrator\source\repos\MayBay\MayBay\Source.cpp(1954,32): warning C4267: 'argument': conversion from 'size_t' to 'short', possible loss of data
+C:\Users\Administrator\source\repos\MayBay\MayBay\Source.cpp(1965,31): warning C4267: 'argument': conversion from 'size_t' to 'short', possible loss of data
+C:\Users\Administrator\source\repos\MayBay\MayBay\Source.cpp(1968,32): warning C4267: 'argument': conversion from 'size_t' to 'short', possible loss of data
+C:\Users\Administrator\source\repos\MayBay\MayBay\Source.cpp(1971,33): warning C4267: 'argument': conversion from 'size_t' to 'short', possible loss of data
+C:\Users\Administrator\source\repos\MayBay\MayBay\Source.cpp(2011,33): warning C4267: 'argument': conversion from 'size_t' to 'short', possible loss of data
+C:\Users\Administrator\source\repos\MayBay\MayBay\Source.cpp(2019,32): warning C4267: 'argument': conversion from 'size_t' to 'short', possible loss of data
+C:\Users\Administrator\source\repos\MayBay\MayBay\Source.cpp(2027,33): warning C4267: 'argument': conversion from 'size_t' to 'short', possible loss of data
+C:\Users\Administrator\source\repos\MayBay\MayBay\Source.cpp(2035,32): warning C4267: 'argument': conversion from 'size_t' to 'short', possible loss of data
+C:\Users\Administrator\source\repos\MayBay\MayBay\Source.cpp(2172,47): warning C4267: 'argument': conversion from 'size_t' to 'short', possible loss of data
+C:\Users\Administrator\source\repos\MayBay\MayBay\Source.cpp(2189,46): warning C4267: 'argument': conversion from 'size_t' to 'short', possible loss of data
+C:\Users\Administrator\source\repos\MayBay\MayBay\Source.cpp(2194,47): warning C4267: 'argument': conversion from 'size_t' to 'short', possible loss of data
+C:\Users\Administrator\source\repos\MayBay\MayBay\Source.cpp(2211,46): warning C4267: 'argument': conversion from 'size_t' to 'short', possible loss of data
+C:\Users\Administrator\source\repos\MayBay\MayBay\Source.cpp(2229,47): warning C4267: 'argument': conversion from 'size_t' to 'short', possible loss of data
+C:\Users\Administrator\source\repos\MayBay\MayBay\Source.cpp(2242,47): warning C4267: 'argument': conversion from 'size_t' to 'short', possible loss of data
+C:\Users\Administrator\source\repos\MayBay\MayBay\Source.cpp(2324,7): warning C4101: 'err': unreferenced local variable
+C:\Users\Administrator\source\repos\MayBay\MayBay\Source.cpp(2427,31): warning C4267: 'argument': conversion from 'size_t' to 'short', possible loss of data
+C:\Users\Administrator\source\repos\MayBay\MayBay\Source.cpp(2432,31): warning C4267: 'argument': conversion from 'size_t' to 'short', possible loss of data
+C:\Users\Administrator\source\repos\MayBay\MayBay\Source.cpp(2434,48): warning C4267: 'argument': conversion from 'size_t' to 'short', possible loss of data
+C:\Users\Administrator\source\repos\MayBay\MayBay\Source.cpp(2438,36): warning C4267: 'argument': conversion from 'size_t' to 'short', possible loss of data
+C:\Users\Administrator\source\repos\MayBay\MayBay\Source.cpp(2454,31): warning C4267: 'argument': conversion from 'size_t' to 'short', possible loss of data
+C:\Users\Administrator\source\repos\MayBay\MayBay\Source.cpp(2456,48): warning C4267: 'argument': conversion from 'size_t' to 'short', possible loss of data
+C:\Users\Administrator\source\repos\MayBay\MayBay\Source.cpp(2460,36): warning C4267: 'argument': conversion from 'size_t' to 'short', possible loss of data
+C:\Users\Administrator\source\repos\MayBay\MayBay\Source.cpp(2477,31): warning C4267: 'argument': conversion from 'size_t' to 'short', possible loss of data
+C:\Users\Administrator\source\repos\MayBay\MayBay\Source.cpp(2480,44): warning C4267: 'argument': conversion from 'size_t' to 'short', possible loss of data
+C:\Users\Administrator\source\repos\MayBay\MayBay\Source.cpp(2492,31): warning C4267: 'argument': conversion from 'size_t' to 'short', possible loss of data
+C:\Users\Administrator\source\repos\MayBay\MayBay\Source.cpp(2495,44): warning C4267: 'argument': conversion from 'size_t' to 'short', possible loss of data
+C:\Users\Administrator\source\repos\MayBay\MayBay\Source.cpp(2576,31): warning C4267: 'argument': conversion from 'size_t' to 'short', possible loss of data
+C:\Users\Administrator\source\repos\MayBay\MayBay\Source.cpp(2592,31): warning C4267: 'argument': conversion from 'size_t' to 'short', possible loss of data
+C:\Users\Administrator\source\repos\MayBay\MayBay\Source.cpp(2607,30): warning C4267: 'argument': conversion from 'size_t' to 'short', possible loss of data
+C:\Users\Administrator\source\repos\MayBay\MayBay\Source.cpp(2617,30): warning C4267: 'argument': conversion from 'size_t' to 'short', possible loss of data
+C:\Users\Administrator\source\repos\MayBay\MayBay\mylib.h(21): warning C4172: returning address of local variable or temporary: S
+  MayBay.vcxproj -> C:\Users\Administrator\source\repos\MayBay\Debug\MayBay.exe
