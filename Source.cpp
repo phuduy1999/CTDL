@@ -10,6 +10,7 @@
 #define MAXMB 300
 #define MAXDAY 10
 #define MAXDONG 20
+#define SOCHO_MIN 20
 #define Enter 13
 #define Space 32
 #define ESC 27
@@ -144,7 +145,7 @@ bool checkNgayHopLeCuaThang(datetime dt) {
 	}
 }
 
-bool checkNgayGioHopLe(datetime& dt) {
+bool checkNgayGioHopLe(datetime dt) {
 	if (dt.gio > 23 || dt.gio < 0) {
 		return false;
 	}
@@ -440,6 +441,18 @@ bool isEmpty(nodesCB_PTR first) {
 		return true;
 	}
 	else return false;
+}
+
+bool isEmpty_ConVe(nodesCB_PTR first) {
+	if (isEmpty(first)) {
+		return true; //het chuyen bay
+	}
+	for (nodesCB_PTR p = first; p != NULL; p = p->next) {
+		if (p->cb.trangThai == 1) {
+			return false; //con chuyen bay con ve
+		}
+	}
+	return true;
 }
 
 void khoiTaoDS_CB(nodesCB_PTR& first) {
@@ -1024,6 +1037,10 @@ void boxTitle(int trang) {
 		SetColor(Blue);
 		cout << "         Huy ve";
 	}
+	else if (trang == 21) {
+		SetColor(Blue);
+		cout << "     Nhap thong tin tra cuu";
+	}
 }
 
 void boxDetail(int trang, int ngang, int cao) {
@@ -1443,7 +1460,10 @@ void inVaXoaTBLoi(int loi) {
 		inLoi(err, 2);
 	}
 	else if (loi == 17) {
-		strcpy_s(err, "So cho it nhat la 20");
+		char tmp[3];
+		_itoa_s(SOCHO_MIN, tmp, 10);
+		strcpy_s(err, "So cho it nhat la ");
+		strcat_s(err, tmp);
 		inLoi(err, 2);
 		strcpy_s(err, "Socho=soday*sodong");
 		inLoi(err, 3);
@@ -1648,6 +1668,32 @@ void inVaXoaTBLoi(int loi) {
 		inLoi(err, 3);
 		strcpy_s(err, "cho chuyen bay nay!");
 		inLoi(err, 4);
+	}
+	else if (loi == 47) {
+		strcpy_s(err, "Danh sach ve cua");
+		inLoi(err, 2);
+		strcpy_s(err, "chuyen bay rong!");
+		inLoi(err, 3);
+	}
+	else if (loi == 48) {
+		strcpy_s(err, "Danh sach chuyen bay");
+		inLoi(err, 2);
+		strcpy_s(err, "con ve rong!");
+		inLoi(err, 3);
+	}
+	else if (loi == 49) {
+		strcpy_s(err, "Khong ton tai chuyen");
+		inLoi(err, 2);
+		strcpy_s(err, "bay co du lieu nay");
+		inLoi(err, 3);
+		strcpy_s(err, "va con ve!");
+		inLoi(err, 4);
+	}
+	else if (loi == 50) {
+		strcpy_s(err, "Chuyen bay khong ");
+		inLoi(err, 2);
+		strcpy_s(err, "con ve trong!");
+		inLoi(err, 3);
 	}
 	Sleep(2000);
 	xoaBoxTB(x_err, y_err, ngang_err, cao_err);
@@ -1992,7 +2038,7 @@ int themMayBay(listMB& ds) {
 				break;
 			}
 			int socho = sday * sdong;
-			if (socho < 20) {
+			if (socho < SOCHO_MIN) {
 				inVaXoaTBLoi(17);
 				viTri = 2;
 				y = y_min + viTri * 3;
@@ -4294,6 +4340,10 @@ int chonSoVe(nodesCB_PTR p_hienTai, nodesHK_PTR hk) {
 	int vtDong_max = p_hienTai->cb.soDong - 1;
 	int vtDay_min = 0;
 	int vtDay_max = p_hienTai->cb.soDay - 1;
+	SetColor(Red);
+	gotoxy(x_min, y_min - 2);
+	cout << "Chuyen Bay: " << p_hienTai->cb.maCB;
+	SetColor(Black);
 	// in danh sach ve
 	bool veDauTrong = false;
 	for (int vtday = 0; vtday < p_hienTai->cb.soDay; vtday++) {
@@ -4394,6 +4444,15 @@ int chonSoVe(nodesCB_PTR p_hienTai, nodesHK_PTR hk) {
 	} while (true);
 }
 
+void capNhatTrangThai_ConVe_HetVe(nodesCB_PTR& p) {
+	if (isFull(p->cb.dsVe, p->cb.soDay * p->cb.soDong)) {
+		p->cb.trangThai = 2; //het ve
+	}
+	else {
+		p->cb.trangThai = 1; //con ve
+	}
+}
+
 void datVe(nodesCB_PTR& first, nodesHK_PTR& root) {
 	//chon chuyen bay de dat ve
 chon_chuyen_bay:
@@ -4436,7 +4495,7 @@ nhap_so_cmnd:
 				break;
 			}
 			int i = searchVe_cmnd(p_hienTai->cb.dsVe, p_hienTai->cb.soDay
-				, p_hienTai->cb.soDong, cmnd);
+				, p_hienTai->cb.soDong, cmnd); //kiem tra hk da dat ve chua
 			if (i != -1) {
 				inVaXoaTBLoi(41);
 				gotoxy(x + strlen(cmnd), y);
@@ -4493,8 +4552,11 @@ nhap_so_cmnd:
 	clrscr();
 	int viTri = chonSoVe(p_hienTai, hk);
 	if (viTri != -1) {
+		//them ve
 		p_hienTai->cb.dsVe.n++;
 		strcpy_s(p_hienTai->cb.dsVe.nodes[viTri].CMND, hk->hk.CMND);
+		//cap nhat trang thai chuyen bay
+		capNhatTrangThai_ConVe_HetVe(p_hienTai);
 		boxDetail(13, 12, 7);
 		int k = nhanPhim();
 		if (k == 'y' || k == 'Y') {
@@ -4545,6 +4607,11 @@ nhap_chuyen_bay:
 			nodesCB_PTR p = searchNodes_CB(first, macb);
 			if (p == NULL) {
 				inVaXoaTBLoi(38);
+				gotoxy(x + strlen(macb), y);
+				break;
+			}
+			else if (isEmpty(p->cb.dsVe)) {//danh sach ve rong sao huy
+				inVaXoaTBLoi(47);
 				gotoxy(x + strlen(macb), y);
 				break;
 			}
@@ -4632,8 +4699,13 @@ nhap_chuyen_bay:
 				p_hienTai->cb.dsVe.nodes[i].soVe << "(y/n): ";
 			char check = nhanPhim();
 			if (check == 'y' || check == 'Y') {
+				//huy ve
 				p_hienTai->cb.dsVe.n--;
 				strcpy_s(p_hienTai->cb.dsVe.nodes[i].CMND, "trong");
+				//cap nhat trang thai chuyen bay
+				if (p_hienTai->cb.trangThai == 2) { //het ve
+					capNhatTrangThai_ConVe_HetVe(p_hienTai);
+				}
 				boxDetail(14, 20, 7);
 				Sleep(2000);
 				return;
@@ -4664,6 +4736,1043 @@ nhap_chuyen_bay:
 			else break;
 			break;
 		}
+	} while (true);
+}
+
+void inDS_HanhKhach(nodesHK_PTR root) {
+
+}
+
+//////////////////////////////Thong ke///////////////////////////////
+//cau e
+void trangInDsHK_ThuocCB(int x, int y, int ngang, int cao, int tmp[], nodesCB_PTR p) {
+	const int soItem = 5;
+	char td[soItem][50] = {
+		"STT",
+		"SO VE",
+		"SO CMND",
+		"HO TEN",
+		"PHAI"
+	};
+	veKhungDS(x, y, ngang, cao, tmp, soItem);
+	showTitle_Search(tmp, td, soItem, x, y, Red);
+	normal();
+	gotoxy(x + 25, y - 1);
+	cout << "DANH SACH HANH KHACH THUOC CHUYEN BAY: ";
+	SetColor(Red);
+	cout << p->cb.maCB;
+	normal();
+	gotoxy(x + 18, y + 1);
+	cout << "Ngay gio khoi hanh: ";
+	ChuyenBay cb = p->cb;
+	SetColor(Red);
+	if (cb.ngayGioKH.ngay < 10) {
+		cout << "0";
+	}
+	cout << cb.ngayGioKH.ngay << "/";
+	if (cb.ngayGioKH.thang < 10) {
+		cout << "0";
+	}
+	cout << cb.ngayGioKH.thang << "/" << cb.ngayGioKH.nam << " ";
+	if (cb.ngayGioKH.gio < 10) {
+		cout << "0";
+	}
+	cout << cb.ngayGioKH.gio << ":";
+	if (cb.ngayGioKH.phut < 10) {
+		cout << "0";
+	}
+	cout << cb.ngayGioKH.phut;
+	normal();
+	cout << ".  Noi den: ";
+	SetColor(Red);
+	cout << p->cb.sanBayDen;
+	normal();
+}
+
+void inThongTin1HK_ThuocCB(Ve ve, int x, int y, int tmp[], nodesHK_PTR root, int stt) {
+	nodesHK_PTR hk = searchNodes_HK(root, ve.CMND);
+	int tmp_x = x + 3;
+	for (int j = 0; j < 5; j++) {
+		tmp_x += tmp[j];
+		gotoxy(tmp_x, y + 3);
+		if (j == 0) {
+			cout << stt;
+		}
+		else if (j == 1) {
+			cout << ve.soVe;
+		}
+		else if (j == 2) {
+			cout << hk->hk.CMND;
+		}
+		else if (j == 3) {
+			cout << hk->hk.ho << " " << hk->hk.ten;
+		}
+		else if (j == 4) {
+			cout << hk->hk.phai;
+		}
+	}
+}
+
+void inDSHK_ThuocCBTaiViTri(nodesCB_PTR p, int viTriIn, int tmp[],
+	int x, int y, int sl, nodesHK_PTR root, int trang) {
+	SetColor(Black);
+	int dem = 0;
+	int stt = (trang - 1) * sl + 1;
+	// duyet danh sach ve listVe
+	for (int i = viTriIn; i < p->cb.soDay * p->cb.soDong; i++) {
+		if (strcmp(p->cb.dsVe.nodes[i].CMND, "trong") == 0) {
+			continue;
+		}
+		inThongTin1HK_ThuocCB(p->cb.dsVe.nodes[i], x, y, tmp, root, stt);
+		stt++;
+		y++;
+		dem++;
+		if (dem == sl) {
+			return;
+		}
+	}
+}
+
+void tinhViTriVe(int* vt, nodesCB_PTR p, int sl, int tongTrang) {
+	int dem = 0;
+	int trang = 0;
+	for (int i = 0; i < p->cb.soDay * p->cb.soDong; i++) {
+		if (strcmp(p->cb.dsVe.nodes[i].CMND, "trong") != 0) {
+			if (dem == 0) {
+				vt[trang] = i;
+			}
+			dem++;
+			if (dem == sl) {
+				dem = 0;
+				trang++;
+			}
+			if (trang == tongTrang) {
+				return;
+			}
+		}
+	}
+}
+
+nodesCB_PTR nhap_Chuyen_Bay(nodesCB_PTR first, int cau) {
+	int x = 25;
+	int y = 8;
+	boxTitle(15);
+	boxDieuHuong(15);
+	gotoxy(x + 1, y + 6);
+	cout << "Nhap ma chuyen bay: ";
+	SetColor(Aqua);
+	box(x, y + 5, 70, 3);
+	SetColor(Black);
+	x = x + strlen("Nhap ma chuyen bay: ") + 1;
+	y += 6;
+	char macb[15] = "";
+	gotoxy(x, y);
+	nodesCB_PTR p_hienTai = NULL;
+	do {
+		int c = nhanPhim();
+		switch (c)
+		{
+		case Backspace: {
+			if (xoaKyTu(macb, x, y) == false) {
+				break;
+			}
+			break;
+		}
+		case Enter: {
+			if (strlen(macb) == 0) {
+				inVaXoaTBLoi(9);
+				gotoxy(x, y);
+				break;
+			}
+			nodesCB_PTR p = searchNodes_CB(first, macb);
+			if (p == NULL) {
+				inVaXoaTBLoi(38);
+				gotoxy(x + strlen(macb), y);
+				break;
+			}
+			else if (isEmpty(p->cb.dsVe) && cau == 'e') {//danh sach ve rong sao in hanh khach
+				inVaXoaTBLoi(47);
+				gotoxy(x + strlen(macb), y);
+				break;
+			}
+			else if (isFull(p->cb.dsVe, p->cb.soDay * p->cb.soDong) && cau == 'g') {//danh sach het ve
+				inVaXoaTBLoi(50);
+				gotoxy(x + strlen(macb), y);
+				break;
+			}
+			p_hienTai = p;
+			break;
+		}
+		case ESC: {
+			return NULL;
+		}
+		default:
+			if (isAlphabet(c) == true || isNumber(c) == true) {
+				if (themKyTu(macb, sizeof(macb), c) == true) {
+					gotoxy(x, y);
+					char tmp = macb[strlen(macb) - 1];
+					if (islower(tmp)) {
+						macb[strlen(macb) - 1] = toupper(tmp);
+					}
+					cout << macb;
+				}
+				else break;
+			}
+			else break;
+			break;
+		}
+	} while (p_hienTai == NULL);
+	return p_hienTai;
+}
+
+void dsHK_ThuocCB(nodesCB_PTR first, nodesHK_PTR root) {
+nhap_chuyen_bay:
+	normal();
+	clrscr();
+	nodesCB_PTR p_hienTai = nhap_Chuyen_Bay(first, 'e');
+	if (p_hienTai == NULL) return;
+
+	//in ds
+	normal();
+	clrscr();
+	int x = 15;
+	int y = 5;
+	int ngang = 95;
+	int cao = 21;
+	int tmp[6] = { 0,9,10,15,50,10 };//khoang cach de ve box //do rong khung
+	int sl = 15;
+	int y_min = y + 2;//y in hk duoi vi tri search 2 dong, x khong doi
+
+	trangInDsHK_ThuocCB(x, y, ngang, cao, tmp, p_hienTai);
+
+	int trang_hienTai = 1;
+	int trang_min = 1;
+	int trang_max;
+	if (p_hienTai->cb.dsVe.n % sl == 0) {
+		trang_max = p_hienTai->cb.dsVe.n / sl;
+	}
+	else trang_max = p_hienTai->cb.dsVe.n / sl + 1;
+
+	int* vt = new int[trang_max]; //mag dong luu vi tri tung trang
+	tinhViTriVe(vt, p_hienTai, sl, trang_max);
+
+	inDSHK_ThuocCBTaiViTri(p_hienTai, vt[0], tmp, x, y_min, sl, root, trang_min);
+	gotoxy(x + 40, 27);
+	cout << "Trang: " << trang_hienTai << "/" << trang_max;
+	do {
+		int c = nhanPhim();
+		switch (c)
+		{
+		case Left: {
+			if (trang_hienTai > trang_min) {
+				trang_hienTai--;
+				clearKhungTimKiem(tmp, x, y_min, sl, 5);
+				inDSHK_ThuocCBTaiViTri(p_hienTai, vt[trang_hienTai - 1]
+					, tmp, x, y_min, sl, root, trang_hienTai);
+			}
+			break;
+		}
+		case Right: {
+			if (trang_hienTai < trang_max) {
+				trang_hienTai++;
+				clearKhungTimKiem(tmp, x, y_min, sl, 5);
+				inDSHK_ThuocCBTaiViTri(p_hienTai, vt[trang_hienTai - 1]
+					, tmp, x, y_min, sl, root, trang_hienTai);
+			}
+			break;
+		}
+		case ESC: {
+			delete[] vt;//xoa mang dong vi tri ve
+			goto nhap_chuyen_bay;
+		}
+		default:
+			break;
+		}
+		gotoxy(x + 40, 27);
+		cout << "                   ";
+		gotoxy(x + 40, 27);
+		cout << "Trang: " << trang_hienTai << "/" << trang_max;
+	} while (true);
+}
+
+//cau f
+void trangNhapNgayGioKH_SanBayDen(int x, int y) {
+	boxTitle(21);
+	boxDieuHuong(15);
+	const int soItem = 2;
+	char td[soItem][20] = {
+		"Ngay khoi hanh   : ",
+		"San bay den      : "
+	};
+	veKhungNhap(td, soItem, x, y);
+	gotoxy(x + 20, y + 1);
+	cout << "  /  /";
+	gotoxy(x + 50, y + 1);
+	cout << "(dd/MM/yyyy)";
+}
+
+int loiNhap_rong_cauF(char* ngay, char* thang, char* namKH, char* sanBayDen) {
+	int a = 97;
+	int b = 7;
+	int viTri = -1;
+	char err[21];
+	if (strlen(ngay) == 0 || strlen(thang) == 0 ||
+		strlen(namKH) == 0 || strlen(sanBayDen) == 0) {
+		gotoxy(a + 2, b + 2);
+		if (strlen(sanBayDen) == 0) {
+			viTri = 1;
+			inVaXoaTBLoi(21);
+		}
+		else {
+			viTri = 0;
+			inVaXoaTBLoi(20);
+		}
+	}
+	return viTri;
+}
+
+bool checkCB_ThoaDieuKien_CauF(nodesCB_PTR p, datetime dt, char* sanBayDen) {
+	if (p->cb.trangThai == 1 && dt.ngay == p->cb.ngayGioKH.ngay &&
+		dt.thang == p->cb.ngayGioKH.thang && dt.nam == p->cb.ngayGioKH.nam) {
+		if (strcmp(sanBayDen, p->cb.sanBayDen) == 0) {
+			return true;
+		}
+	}
+	return false;
+}
+
+bool checkTonTaiCB_NgayKH_SanBayDen_ConVe(nodesCB_PTR first, datetime dt, char* sanBayDen) {
+	for (nodesCB_PTR p = first; p != NULL; p = p->next) {
+		if (checkCB_ThoaDieuKien_CauF(p, dt, sanBayDen) == true) {
+			return true;
+		}
+	}
+	return false; //ko ton tai
+}
+
+void trangInDsCB_NgayKH(int x, int y, int ngang, int cao, int tmp[],
+	datetime dt, char* sanBayDen) {
+	const int soItem = 4;
+	char td[soItem][50] = {
+		"MA CHUYEN BAY",
+		"SO HIEU MB",
+		"SO VE TRONG",
+		"GIO KHOI HANH"
+	};
+	veKhungDS(x, y, ngang, cao, tmp, soItem);
+	showTitle_Search(tmp, td, soItem, x, y, Red);
+	normal();
+	gotoxy(x + 25, y - 1);
+	cout << "DANH SACH CHUYEN BAY KHOI HANH ";
+	SetColor(Red);
+	cout << "CON VE";
+	normal();
+	cout << " VA CO";
+	gotoxy(x + 20, y + 1);
+	cout << "Ngay gio khoi hanh: ";
+	SetColor(Red);
+	if (dt.ngay < 10) {
+		cout << "0";
+	}
+	cout << dt.ngay << "/";
+	if (dt.thang < 10) {
+		cout << "0";
+	}
+	cout << dt.thang << "/" << dt.nam << " ";
+	normal();
+	cout << ".  Noi den : ";
+	SetColor(Red);
+	cout << sanBayDen;
+	normal();
+}
+
+void inThongTin1CB_CauF(ChuyenBay cb, int x, int y, int tmp[]) {
+	int tmp_x = x + 3;
+	for (int j = 0; j < 4; j++) {
+		tmp_x += tmp[j];
+		gotoxy(tmp_x, y + 3);
+		if (j == 0) {
+			cout << cb.maCB;
+		}
+		else if (j == 1) {
+			cout << cb.soHieu;
+		}
+		else if (j == 2) {
+			cout << cb.soDay * cb.soDong - cb.dsVe.n;
+		}
+		else if (j == 3) {
+			if (cb.ngayGioKH.gio < 10) {
+				cout << "0";
+			}
+			cout << cb.ngayGioKH.gio << ":";
+			if (cb.ngayGioKH.phut < 10) {
+				cout << "0";
+			}
+			cout << cb.ngayGioKH.phut;
+		}
+	}
+}
+
+void inDSCB_CauFTaiViTri(nodesCB_PTR hienTai, datetime dt, char* sanBayDen,
+	int tmp[], int x, int y, int sl) {
+	SetColor(Black);
+	int dem = 0;
+	for (nodesCB_PTR p = hienTai; p != NULL; p = p->next) {
+		if (checkCB_ThoaDieuKien_CauF(p, dt, sanBayDen) == false) continue;
+		inThongTin1CB_CauF(p->cb, x, y, tmp);
+		y++;
+		dem++;
+		if (dem == sl) {
+			return;
+		}
+	}
+}
+
+void dsCB_KhoiHanh_Ngay_ConVe(nodesCB_PTR first) {
+	//nhap ngaygiokh va san bay den
+nhap_thong_tin:
+	normal();
+	clrscr();
+	int x = 25;
+	int y = 8;
+	trangNhapNgayGioKH_SanBayDen(x, y);
+	x = x + 20;
+	y++;
+	gotoxy(x, y);
+	int x_min = x;
+	int y_min = y;
+	int viTri = 0; //0<=vitri<=1
+	int vt_min = 0;
+	int vt_max = 1;
+	int index = 0;//vitri nhap ngay gio khoi hanh
+	int index_min = 0;
+	int index_max = 2;
+	//bien tam
+	char ngay[3] = "";
+	char thang[3] = "";
+	char nam[5] = "";
+	char sanBayDen[50] = "";
+	datetime dt;
+	bool thoat = false;
+	do {
+		int c = nhanPhim();
+		if (c == Enter && viTri == 0) {
+			c = Down;
+		}
+		switch (c)
+		{
+		case Up: {
+			if (viTri > vt_min) {
+				viTri--;
+				y = y_min + viTri * 3;
+				gotoxy(x, y);
+			}
+			if (viTri == 0) {
+				if (index == 2) {
+					gotoxy(x_min + index * 3 + strlen(nam), y);
+				}
+				else if (index == 0) {
+					gotoxy(x_min + index * 3 + strlen(ngay), y);
+				}
+				else if (index == 1) {
+					gotoxy(x_min + index * 3 + strlen(thang), y);
+				}
+			}
+			break;
+		}
+		case Down: {
+			if (viTri < vt_max) {
+				viTri++;
+				y = y_min + viTri * 3;
+				gotoxy(x, y);
+			}
+			if (viTri == 1) {
+				gotoxy(x + strlen(sanBayDen), y);
+			}
+			break;
+		}
+		case Left: {
+			if (viTri == 0) {
+				if (index > index_min) {
+					index--;
+				}
+				if (index == 2) {
+					gotoxy(x_min + index * 3 + strlen(nam), y);
+				}
+				else if (index == 0) {
+					gotoxy(x_min + index * 3 + strlen(ngay), y);
+				}
+				else if (index == 1) {
+					gotoxy(x_min + index * 3 + strlen(thang), y);
+				}
+			}
+			break;
+		}
+		case Right: {
+			if (viTri == 0) {
+				if (index < index_max) {
+					index++;
+				}
+				if (index == 2) {
+					gotoxy(x_min + index * 3 + strlen(nam), y);
+				}
+				else if (index == 0) {
+					gotoxy(x_min + index * 3 + strlen(ngay), y);
+				}
+				else if (index == 1) {
+					gotoxy(x_min + index * 3 + strlen(thang), y);
+				}
+			}
+			break;
+		}
+		case Backspace: {
+			if (viTri == 0) {
+				if (index == 2) {
+					if (xoaKyTu(nam, x_min + index * 3, y) == false) {
+						break;
+					}
+				}
+				else if (index == 0) {
+					if (xoaKyTu(ngay, x_min + index * 3, y) == false) {
+						break;
+					}
+				}
+				else if (index == 1) {
+					if (xoaKyTu(thang, x_min + index * 3, y) == false) {
+						break;
+					}
+				}
+			}
+			else if (viTri == 1) {
+				if (xoaKyTu(sanBayDen, x, y) == false) {
+					break;
+				}
+			}
+			break;
+		}
+		case Enter: {
+			int vt = loiNhap_rong_cauF(ngay, thang, nam, sanBayDen);
+			if (vt != -1) { //co loi xay ra
+				viTri = vt;
+				y = y_min + viTri * 3;
+				if (viTri == 0) {
+					index = 2;//nhay ve cuoi nhap ngay gio khoi hanh
+					gotoxy(x_min + index * 3 + strlen(nam), y);
+				}
+				else gotoxy(x, y);
+				break;
+			}
+
+			dt.gio = 23;
+			dt.phut = 59;
+			dt.ngay = atoi(ngay);
+			dt.thang = atoi(thang);
+			dt.nam = atoi(nam);
+			if (checkNgayGioHopLe(dt) == false) {
+				inVaXoaTBLoi(24);
+				viTri = 0;
+				y = y_min + viTri * 3;
+				index = 2;//nhay ve cuoi nhap ngay gio khoi hanh
+				gotoxy(x_min + index * 3 + strlen(nam), y);
+				break;
+			}
+			// kiem tra thoi gian tuong lai
+			if (checkNgayLapChuyenBay(dt) == false) {
+				inVaXoaTBLoi(25);
+				viTri = 0;
+				y = y_min + viTri * 3;
+				index = 2;//nhay ve cuoi nhap ngay gio khoi hanh
+				gotoxy(x_min + index * 3 + strlen(nam), y);
+				break;
+			}
+			if (sanBayDen[strlen(sanBayDen) - 1] == Space) {
+				sanBayDen[strlen(sanBayDen) - 1] = '\0';
+			}
+			if (checkTonTaiCB_NgayKH_SanBayDen_ConVe(first, dt, sanBayDen) == false) {
+				inVaXoaTBLoi(49);
+				viTri = 1;
+				y = y_min + viTri * 3;
+				gotoxy(x_min + strlen(sanBayDen), y);
+				break;
+			}
+			thoat = true;
+			break;
+		}
+		case ESC: {
+			return;
+		}
+		default:
+			if (viTri == 0) {
+				if (isNumber(c) == true) {
+					if (index == 0) {
+						if (strlen(ngay) < sizeof(ngay) - 1) {
+							if (themKyTu(ngay, sizeof(ngay), c) == true) {
+								gotoxy(x_min + index * 3, y);
+								cout << ngay;
+							}
+						}
+					}
+					else if (index == 1) {
+						if (strlen(thang) < sizeof(thang) - 1) {
+							if (themKyTu(thang, sizeof(thang), c) == true) {
+								gotoxy(x_min + index * 3, y);
+								cout << thang;
+							}
+						}
+					}
+					else if (index == 2) {
+						if (strlen(nam) < sizeof(nam) - 1) {
+							if (themKyTu(nam, sizeof(nam), c) == true) {
+								gotoxy(x_min + index * 3, y);
+								cout << nam;
+							}
+						}
+					}
+					else break;
+				}
+				else break;
+			}
+			else if (viTri == 1) {
+				if (isAlphabet(c) == true || c == Space) {
+					if (strlen(sanBayDen) < sizeof(sanBayDen) - 1 && c == Space) {
+						if (strlen(sanBayDen) == 0 || strlen(sanBayDen) == sizeof(sanBayDen) - 2) {
+							break; //space sai da break; space dau va cuoi
+						}
+						else if (sanBayDen[strlen(sanBayDen) - 1] == Space) {
+							break;
+						}
+					} //neu ko break thi space do hop le
+					if (strlen(sanBayDen) < sizeof(sanBayDen) - 1) {
+						if (themKyTu(sanBayDen, sizeof(sanBayDen), c) == true) {
+							gotoxy(x, y);
+							if (strlen(sanBayDen) == 1) {
+								if (islower(sanBayDen[0])) {
+									sanBayDen[0] = toupper(sanBayDen[0]);
+								}
+							}
+							else if (sanBayDen[strlen(sanBayDen) - 2] == Space) {
+								char tmp = sanBayDen[strlen(sanBayDen) - 1];
+								if (islower(tmp)) {
+									sanBayDen[strlen(sanBayDen) - 1] = toupper(tmp);
+								}
+							}
+							else {
+								char tmp = sanBayDen[strlen(sanBayDen) - 1];
+								if (isupper(tmp)) {
+									sanBayDen[strlen(sanBayDen) - 1] = tolower(tmp);
+								}
+							}
+							cout << sanBayDen;
+						}
+						else break;
+					}
+					else break;
+				}
+				else break;
+			}
+			break;
+		}
+	} while (thoat == false);
+
+	//in ds
+	normal();
+	clrscr();
+	x = 15;
+	y = 5;
+	int ngang = 95;
+	int cao = 21;
+	int tmp[5] = { 0,19,19,28,28 };//khoang cach de ve box //do rong khung
+	int sl = 15;
+	y_min = y + 2;//y in hk duoi vi tri search 2 dong, x khong doi
+
+	trangInDsCB_NgayKH(x, y, ngang, cao, tmp, dt, sanBayDen);
+
+	int soLuong = 0;
+	nodesCB_PTR p_Dau = NULL;  // p dau tien con ve, trung ngaykh,sanbay
+	for (nodesCB_PTR p = first; p != NULL; p = p->next) {
+		if (checkCB_ThoaDieuKien_CauF(p, dt, sanBayDen) == true) { //thoa dieu kien
+			if (soLuong == 0) {
+				p_Dau = p;
+			}
+			soLuong++;
+		}
+	}
+	nodesCB_PTR p_hienTai = p_Dau; //p_Dau ko null vi da bat dieu kien luc nhap tt
+
+	int trang_hienTai = 1;
+	int trang_min = 1;
+	int trang_max;
+	if (soLuong % sl == 0) { //soLuong chac chan lon hon 0
+		trang_max = soLuong / sl;
+	}
+	else trang_max = soLuong / sl + 1;
+
+	inDSCB_CauFTaiViTri(p_hienTai, dt, sanBayDen, tmp, x, y_min, sl);
+
+	gotoxy(x + 40, 27);
+	cout << "Trang: " << trang_hienTai << "/" << trang_max;
+	do {
+		int c = nhanPhim();
+		switch (c) {
+		case Left: {
+			if (trang_hienTai == trang_min) {
+				break;
+			}
+			nodesCB_PTR f = p_hienTai;
+			for (int i = 0; i < sl; i++) {
+				f = timP_Before(p_Dau, f);
+				if (checkCB_ThoaDieuKien_CauF(f, dt, sanBayDen) == false) {
+					i--;
+				}
+			}
+			trang_hienTai--;
+			p_hienTai = f;
+			clearKhungTimKiem(tmp, x, y_min, sl, 4);
+			inDSCB_CauFTaiViTri(p_hienTai, dt, sanBayDen, tmp, x, y_min, sl);
+			break;
+		}
+		case Right: {
+			if (trang_hienTai == trang_max) {
+				break;
+			}
+			nodesCB_PTR f = p_hienTai;
+			for (int i = 0; i < sl; i++) {
+				f = timP_After(f);
+				if (checkCB_ThoaDieuKien_CauF(f, dt, sanBayDen) == false) {
+					i--;
+				}
+			}
+			trang_hienTai++;
+			p_hienTai = f;
+			clearKhungTimKiem(tmp, x, y_min, sl, 4);
+			inDSCB_CauFTaiViTri(p_hienTai, dt, sanBayDen, tmp, x, y_min, sl);
+			break;
+		}
+		case ESC: {
+			goto nhap_thong_tin;
+		}
+		default:
+			break;
+		}
+		gotoxy(x + 40, 27);
+		cout << "Trang: " << trang_hienTai << "/" << trang_max;
+	} while (true);
+}
+
+//cau g
+void trangInDsVeTrong(int x, int y, int ngang, int cao, int tmp[], nodesCB_PTR p) {
+	const int soItem = 3;
+	char td[soItem][50] = {
+		"SO VE",
+		"DAY",
+		"DONG"
+	};
+	veKhungDS(x, y, ngang, cao, tmp, soItem);
+	showTitle_Search(tmp, td, soItem, x, y, Red);
+	normal();
+	gotoxy(x + 25, y - 1);
+	cout << "DANH SACH VE TRONG CUA CHUYEN BAY: ";
+	SetColor(Red);
+	cout << p->cb.maCB;
+	normal();
+	gotoxy(x + 15, y + 1);
+	cout << "Ngay gio khoi hanh: ";
+	ChuyenBay cb = p->cb;
+	SetColor(Red);
+	if (cb.ngayGioKH.ngay < 10) {
+		cout << "0";
+	}
+	cout << cb.ngayGioKH.ngay << "/";
+	if (cb.ngayGioKH.thang < 10) {
+		cout << "0";
+	}
+	cout << cb.ngayGioKH.thang << "/" << cb.ngayGioKH.nam << " ";
+	if (cb.ngayGioKH.gio < 10) {
+		cout << "0";
+	}
+	cout << cb.ngayGioKH.gio << ":";
+	if (cb.ngayGioKH.phut < 10) {
+		cout << "0";
+	}
+	cout << cb.ngayGioKH.phut;
+	normal();
+	cout << ".  Noi den: ";
+	SetColor(Red);
+	cout << p->cb.sanBayDen;
+	normal();
+	cout << " . So ve trong: ";
+	SetColor(Red);
+	cout << p->cb.soDay * p->cb.soDong - p->cb.dsVe.n;
+	normal();
+}
+
+void tinhViTriVeTrong(int* vt, nodesCB_PTR p, int sl, int tongTrang) {
+	int dem = 0;
+	int trang = 0;
+	for (int i = 0; i < p->cb.soDay * p->cb.soDong; i++) {
+		if (strcmp(p->cb.dsVe.nodes[i].CMND, "trong") == 0) {
+			if (dem == 0) {
+				vt[trang] = i;
+			}
+			dem++;
+			if (dem == sl) {
+				dem = 0;
+				trang++;
+			}
+			if (trang == tongTrang) {
+				return;
+			}
+		}
+	}
+}
+
+void inThongTin1VeTrong(Ve ve, int x, int y, int tmp[]) {
+	int tmp_x = x + 3;
+	for (int j = 0; j < 3; j++) {
+		tmp_x += tmp[j];
+		gotoxy(tmp_x, y + 3);
+		if (j == 0) {
+			cout << ve.soVe;
+		}
+		else if (j == 1) {
+			cout << ve.soVe[0];
+		}
+		else if (j == 2) {
+			cout << ve.soVe[1] << ve.soVe[2];
+		}
+	}
+}
+
+void inDSVeTrong_TaiViTri(nodesCB_PTR p, int viTriIn, int tmp[],
+	int x, int y, int sl) {
+	SetColor(Black);
+	int dem = 0;
+	// duyet danh sach ve listVe
+	for (int i = viTriIn; i < p->cb.soDay * p->cb.soDong; i++) {
+		if (strcmp(p->cb.dsVe.nodes[i].CMND, "trong") != 0) {
+			continue;
+		}
+		inThongTin1VeTrong(p->cb.dsVe.nodes[i], x, y, tmp);
+		y++;
+		dem++;
+		if (dem == sl) {
+			return;
+		}
+	}
+}
+
+void dsVeTrong_CuaCB(nodesCB_PTR first) {
+nhap_chuyen_bay:
+	normal();
+	clrscr();
+	nodesCB_PTR p_hienTai = nhap_Chuyen_Bay(first, 'g');
+	if (p_hienTai == NULL) return;
+
+	//in ds
+	normal();
+	clrscr();
+	int x = 15;
+	int y = 5;
+	int ngang = 95;
+	int cao = 21;
+	int tmp[4] = { 0,32,31,31 };//khoang cach de ve box //do rong khung
+	int sl = 15;
+	int y_min = y + 2;//y in hk duoi vi tri search 2 dong, x khong doi
+
+	trangInDsVeTrong(x, y, ngang, cao, tmp, p_hienTai);
+
+	int trang_hienTai = 1;
+	int trang_min = 1;
+	int trang_max;
+	int soVeTrong = p_hienTai->cb.soDay * p_hienTai->cb.soDong - p_hienTai->cb.dsVe.n;
+	if (soVeTrong % sl == 0) {
+		trang_max = soVeTrong / sl;
+	}
+	else trang_max = soVeTrong / sl + 1;
+
+	int* vt = new int[trang_max]; //mag dong luu vi tri tung trang
+	tinhViTriVeTrong(vt, p_hienTai, sl, trang_max);
+
+	inDSVeTrong_TaiViTri(p_hienTai, vt[0], tmp, x, y_min, sl);
+	gotoxy(x + 40, 27);
+	cout << "Trang: " << trang_hienTai << "/" << trang_max;
+	do {
+		int c = nhanPhim();
+		switch (c)
+		{
+		case Left: {
+			if (trang_hienTai > trang_min) {
+				trang_hienTai--;
+				clearKhungTimKiem(tmp, x, y_min, sl, 5);
+				inDSVeTrong_TaiViTri(p_hienTai, vt[trang_hienTai - 1]
+					, tmp, x, y_min, sl);
+			}
+			break;
+		}
+		case Right: {
+			if (trang_hienTai < trang_max) {
+				trang_hienTai++;
+				clearKhungTimKiem(tmp, x, y_min, sl, 5);
+				inDSVeTrong_TaiViTri(p_hienTai, vt[trang_hienTai - 1]
+					, tmp, x, y_min, sl);
+			}
+			break;
+		}
+		case ESC: {
+			delete[] vt;//xoa mang dong vi tri ve
+			goto nhap_chuyen_bay;
+		}
+		default:
+			break;
+		}
+		gotoxy(x + 40, 27);
+		cout << "                   ";
+		gotoxy(x + 40, 27);
+		cout << "Trang: " << trang_hienTai << "/" << trang_max;
+	} while (true);
+}
+
+//cau h
+void trangTK_MBLuotThucHienCB(int x, int y, int ngang, int cao, int tmp[]) {
+	const int soItem = 3;
+	char td[soItem][50] = {
+		"SO HIEU MB",
+		"LOAI MAY BAY",
+		"SO LUOT THUC HIEN CB"
+	};
+	veKhungDS(x, y, ngang, cao, tmp, soItem);
+	showTitle_Search(tmp, td, soItem, x, y, Red);
+	normal();
+	gotoxy(x + 18, y - 1);
+	cout << "THONG KE MAY BAY CO SO LUOT THUC HIEN CHUYEN BAY ";
+	SetColor(Red);
+	cout << "GIAM DAN";
+	normal();
+}
+
+int tinhSoLuotThucHienCua1MB(MayBay mb, nodesCB_PTR first) {
+	int dem = 0;
+	for (nodesCB_PTR p = first; p != NULL; p = p->next) {
+		if (strcmp(mb.soHieu, p->cb.soHieu) == 0) {
+			dem++;
+		}
+	}
+	return dem;
+}
+
+void sapXepTheoSoLuotThucHien_GiamDan(MayBay* ds, int n) {
+	MayBay tmp;
+	for (int i = 1; i < n; i++) {
+		for (int j = n - 1; j >= i; j--) {
+			if (ds[j - 1].soDong < ds[j].soDong) { //xem sodong la slthcb
+				tmp = ds[j - 1];
+				ds[j - 1] = ds[j];
+				ds[j] = tmp;
+			}
+		}
+	}
+}
+
+void inThongTin1MB_CauH(MayBay mb, int x, int y, int tmp[]) {
+	int tmp_x = x + 3;
+	for (int j = 0; j < 3; j++) {
+		tmp_x += tmp[j];
+		gotoxy(tmp_x, y + 3);
+		if (j == 0) {
+			cout << mb.soHieu;
+		}
+		else if (j == 1) {
+			cout << mb.loai;
+		}
+		else if (j == 2) {
+			cout << mb.soDong; //quy uoc la so luot thuc hien chuyen bay
+		}
+	}
+}
+
+void inDSTK_LuotThucHien_TaiViTri(MayBay* ds, int viTriIn, int tmp[],
+	int x, int y, int sl,int n) {
+	SetColor(Black);
+	int dem = 0;
+	for (int i = viTriIn; i < n; i++) {
+		inThongTin1MB_CauH(ds[i], x, y, tmp);
+		y++;
+		dem++;
+		if (dem == sl) {
+			return;
+		}
+	}
+}
+
+void thongKeMBLuotThucHienCB_GiamDan(listMB ds, nodesCB_PTR first) {
+	//tao mang dong la danh sach tam de tien hanh thong ke
+	//quy uoc sodong la soluotthucchiencb cua may bay
+	int n = ds.n;
+	MayBay* ds_tmp = new MayBay[n]; //mang dong can xoa sau khi ket thuc ham
+	for (int i = 0; i < n; i++) {
+		ds_tmp[i] = *ds.nodes[i];
+	}
+	//tinh so luot thuc hien chuyen bay cua may bay tan dung bien soDong
+	for (int i = 0; i < n; i++) {
+		ds_tmp[i].soDong = tinhSoLuotThucHienCua1MB(ds_tmp[i], first);
+	}
+	sapXepTheoSoLuotThucHien_GiamDan(ds_tmp, n);
+	///////////////////////////////////////////////////////////////
+	int x = 15;
+	int y = 5;
+	int ngang = 95;
+	int cao = 21;
+	int tmp[4] = { 0,19,50,25 };//khoang cach de ve box //do rong khung
+	int sl = 15;
+	int y_min = y + 2;//y in hk duoi vi tri search 2 dong, x khong doi
+
+	trangTK_MBLuotThucHienCB(x, y, ngang, cao, tmp);
+
+	int viTri = 0;
+	int trang_hienTai = 1;
+	int trang_min = 1;
+	int trang_max;
+	if (ds.n % sl == 0) {
+		trang_max = ds.n / sl;
+	}
+	else trang_max = ds.n / sl + 1;
+
+	inDSTK_LuotThucHien_TaiViTri(ds_tmp, viTri, tmp, x, y_min, sl, n);
+	gotoxy(x + 40, 27);
+	cout << "Trang: " << trang_hienTai << "/" << trang_max;
+	do {
+		int c = nhanPhim();
+		switch (c)
+		{
+		case Left: {
+			if (trang_hienTai > trang_min) {
+				trang_hienTai--;
+				viTri = (trang_hienTai - 1) * sl;
+				clearKhungTimKiem(tmp, x, y_min, sl, 3);
+				inDSTK_LuotThucHien_TaiViTri(ds_tmp, viTri, tmp, x, y_min, sl, n);
+			}
+			break;
+		}
+		case Right: {
+			if (trang_hienTai < trang_max) {
+				trang_hienTai++;
+				viTri = (trang_hienTai - 1) * sl;
+				clearKhungTimKiem(tmp, x, y_min, sl, 3);
+				inDSTK_LuotThucHien_TaiViTri(ds_tmp, viTri, tmp, x, y_min, sl, n);
+			}
+			break;
+		}
+		case ESC: {
+			delete[] ds_tmp;//xoa mang dong chua danh sach may bay de thong ke
+			return;
+		}
+		default:
+			break;
+		}
+		gotoxy(x + 40, 27);
+		cout << "                   ";
+		gotoxy(x + 40, 27);
+		cout << "Trang: " << trang_hienTai << "/" << trang_max;
 	} while (true);
 }
 
@@ -4859,8 +5968,8 @@ void quanLyDatHuyVe(nodesCB_PTR& first, nodesHK_PTR& root) {
 		switch (c)
 		{
 		case 1: {
-			if (isEmpty(first)) {
-				inVaXoaTBLoi(31);
+			if (isEmpty_ConVe(first)) {
+				inVaXoaTBLoi(48);
 				break;
 			}
 			clrscr();
@@ -4898,16 +6007,51 @@ void ThongKe(listMB ds, nodesCB_PTR first, nodesHK_PTR root) {
 		switch (c)
 		{
 		case 1: {
-
+			if (isEmpty(first)) {
+				inVaXoaTBLoi(31);
+				break;
+			}
+			clrscr();
+			dsHK_ThuocCB(first, root);
+			normal();
+			clrscr();
 			break;
 		}
 		case 2: {
+			if (isEmpty_ConVe(first)) {
+				inVaXoaTBLoi(48);
+				break;
+			}
+			clrscr();
+			dsCB_KhoiHanh_Ngay_ConVe(first);
+			normal();
+			clrscr();
 			break;
 		}
 		case 3: {
+			if (isEmpty(first)) {
+				inVaXoaTBLoi(31);
+				break;
+			}
+			clrscr();
+			dsVeTrong_CuaCB(first);
+			normal();
+			clrscr();
 			break;
 		}
 		case 4: {
+			if (isEmpty(ds)) {
+				inVaXoaTBLoi(2);
+				break;
+			}
+			if (isEmpty(first)) {
+				inVaXoaTBLoi(31);
+				break;
+			}
+			clrscr();
+			thongKeMBLuotThucHienCB_GiamDan(ds, first);
+			normal();
+			clrscr();
 			break;
 		}
 		case ESC: {
