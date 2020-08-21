@@ -123,26 +123,13 @@ bool checkNamNhuan(int nam) {
 
 bool checkNgayHopLeCuaThang(datetime dt) {
 	int dayEndOfMonth[12] = { 31,28,31,30,31,30,31,31,30,31,30,31 };
-	if (dt.thang != 2) {
-		if (dt.ngay <= dayEndOfMonth[dt.thang - 1]) {
-			return true;
-		}
-		else return false;
+	if (checkNamNhuan(dt.nam)) {
+		dayEndOfMonth[1] = 29;
 	}
-	else {
-		if (checkNamNhuan(dt.nam)) {
-			if (dt.ngay <= 29) {
-				return true;
-			}
-			else return false;
-		}
-		else {
-			if (dt.ngay <= dayEndOfMonth[dt.thang - 1]) {
-				return true;
-			}
-			else return false;
-		}
+	if (dt.ngay <= dayEndOfMonth[dt.thang - 1]) {
+		return true;
 	}
+	else return false;
 }
 
 bool checkNgayGioHopLe(datetime dt) {
@@ -254,11 +241,14 @@ bool dt1_NhoHon_dt2(datetime dt1, datetime dt2) { //khong xet th trung
 				else if (dt1.gio > dt2.gio) {
 					return false;
 				}
-				else {
+				else { //gio bang nhau
 					if (dt1.phut < dt2.phut) {
 						return true;
 					}
 					else if (dt1.phut > dt2.phut) {
+						return false;
+					}
+					else { //phut bang nhau ==> trung
 						return false;
 					}
 				}
@@ -298,9 +288,8 @@ bool checkThoiGian2CB(datetime dt1, datetime dt2) { // cach 2 tieng
 		dt_nho = dt2;
 		dt_lon = dt1;
 	}
-	tinhThoiGian_After(dt_nho); //dt_nho after co the trung dt_lon
-	if (checkNgayTrungChuyenBay(dt_nho, dt_lon) == true) return false;
-	if (dt1_NhoHon_dt2(dt_nho, dt_lon) == true) {
+	tinhThoiGian_After(dt_nho); //dt_nho after co the trung dt_lon nhung da 
+	if (dt1_NhoHon_dt2(dt_nho, dt_lon) == true) { //return false trong ham
 		return true; //hop le
 	}
 	else {
@@ -378,21 +367,7 @@ int deleteNodes_MB(listMB& ds, int index) { //delete khi da biet vi tri mb
 	}
 }
 
-void duyetList_MB(listMB ds) {
-	if (isEmpty(ds)) {
-		cout << "danh sach rong";
-		return;
-	}
-	for (int i = 0; i < ds.n; i++) {
-		cout << ds.nodes[i]->soHieu << "\t" << ds.nodes[i]->loai << endl;
-	}
-}
-
 void clearList_MB(listMB& ds) {
-	/*for (int i = 0; i < ds.n; i++) {
-		delete ds.nodes[i];
-	}
-	ds.n = 0;*/
 	while (ds.n > 0) {
 		delete ds.nodes[ds.n - 1];
 		ds.n--;
@@ -4911,6 +4886,7 @@ void tinhViTriNodesIn(nodesHK_PTR p, int& dem, int sl, nodesHK_PTR* vt, int& n) 
 
 void Inoder_DSHK(nodesHK_PTR p, int& dem, int sl, bool& in,
 	nodesHK_PTR p_viTri, int x, int& y, int tmp[]) {
+	if (dem == sl) return;
 	if (p != NULL) {
 		Inoder_DSHK(p->left, dem, sl, in, p_viTri, x, y, tmp);
 		if (dem < sl) {
